@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        /* General Styles */
+body {
+    background-color: #F9F9F9;
+    color: #333333;
+    font-family: 'Arial', sans-serif; /* You can change this to a font of your choice */
+}
+
+/* Headers, Primary Elements */
+h1, h2, h3, .primary {
+    color: #5599FF;
+}
+
+/* Secondary Elements */
+.secondary {
+    color: #7BC8A4;
+}
+
+/* Accent Elements */
+.accent {
+    color: #FFB447;
+}
+
+/* Buttons, Links */
+a, button {
+    background-color: #5599FF;
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+a:hover, button:hover {
+    background-color: #7BC8A4;
+}
+
+/* Named Entity Colors */
+.Sign_or_Symptom {
+    background-color: #FF6B6B;
+}
+
+.Finding {
+    background-color: #1E90FF;
+}
+
+.Temporal_Concept {
+    background-color: #98FB98;
+}
+
+.Location {
+    background-color: #FFD700;
+}
+
+.Population_Group {
+    background-color: #FFA07A;
+}
+
+.Age_Group {
+    background-color: #DDA0DD;
+}
+
+.No_Symptom_Occurrence {
+    background-color: #B0E0E6;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Box Styling */
+.box {
+    background-color: #FFFFFF;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Home Button -->
+        <div class="home-button">
+            <a href="index.html" class="btn btn-primary">Home</a>
+        </div>
+        <div class="box" id="clinicalCaseBox">
+            <h4>Clinical Case:</h4>
+            <div id="clinicalCaseText"></div>
+        </div>
+        <div class="box" id="answerBox">
+            <h4>Answer:</h4>
+            <p>Correct Answer: <span id="correctAnswer"></span></p>
+            <p>Incorrect Answers: <span id="incorrectAnswers"></span></p>
+        </div>
+        <div class="box" id="symptomsBox">
+            <h4>Symptom Assessment</h4>
+            <table id="symptomsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Symptom</th>
+                        <th>Associated with the correct disease</th>
+                        <th>Occurrence Rate</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JavaScript will populate this part -->
+                </tbody>
+            </table>
+            <div id="paginationControls">
+                <button id="prevPageButton" class="btn btn-secondary">Previous Page</button>
+                <button id="nextPageButton" class="btn btn-secondary">Next Page</button>
+            </div>
+        </div>        
+        <div class="box" id="explanationBox">
+            <h4>Generated Explanation:</h4>
+            <div class="spinner-border text-primary" role="status" id="loadingSpinner">
+            </div>
+            <div id="results"></div> <!-- This will display the generated explanations -->
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
+<script>
+    let currentPage = 1;
+    const recordsPerPage = 10;
+    let symptoms = [];
+    function numPages() {
+        return Math.ceil(symptoms.length / recordsPerPage);
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            changePage(currentPage);
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < numPages()) {
+            currentPage++;
+            changePage(currentPage);
+        }
+    }
+
+    function changePage(page) {
+        const btnNext = document.getElementById('nextPageButton');
+        const btnPrev = document.getElementById('prevPageButton');
+
+        // Validate page
+        if (page < 1) page = 1;
+        if (page > numPages()) page = numPages();
+
+        const tableBody = document.getElementById('symptomsTable').querySelector('tbody');
+        tableBody.innerHTML = '';
+
+        for (let i = (page - 1) * recordsPerPage; i < (page * recordsPerPage) && i < symptoms.length; i++) {
+            const symptom = symptoms[i];    
+            const row = tableBody.insertRow();
+            const cellSymptom = row.insertCell();
+            const cellAssociated = row.insertCell();
+            const cellOccurrence = row.insertCell();
+            const cellScore = row.insertCell();
+
+            cellSymptom.textContent = symptom['name'];
+            cellAssociated.textContent = symptom['correct'] ? 'True' : 'False';
+            cellOccurrence.textContent = symptom['occurrence_rate_str']; // Assuming it's a number, adjust if needed
+            cellScore.textContent = symptom['score'].toFixed(2); // Assuming it's a number, adjust if needed
+        }
+
+        btnPrev.style.visibility = currentPage === 1 ? 'hidden' : 'visible';
+        btnNext.style.visibility = currentPage === numPages() ? 'hidden' : 'visible';
+    }
+    // This event listener will ensure that the event handlers are attached after the DOM is fully loaded.
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('nextPageButton').addEventListener('click', nextPage);
+        document.getElementById('prevPageButton').addEventListener('click', prevPage);
+
+        continuePipeline();
+    });
+
+    async function continuePipeline() {
+        const stepOneResponse = await fetch("/step_one", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+
+        if (stepOneResponse.ok) {
+            console.log('Successfully called /step_one');
+            const stepOneResult = await stepOneResponse.json();
+            // let clinicalCaseText = stepOneResult.clinical_case;
+            let clinicalCaseText = stepOneResult.html_body;
+            const namedEntities = stepOneResult.named_entities;
+            let offset = 0;
+
+            // Update the Clinical Case text in the DOM with the highlighted named entities
+            document.getElementById('clinicalCaseText').innerHTML = clinicalCaseText;
+            
+            const correctDisease = stepOneResult.correct_disease;
+            let incorrectAnswers = stepOneResult.incorrect_diseases;
+
+            document.getElementById('correctAnswer').innerHTML = correctDisease;
+
+            // let incorrectDiseases = "";
+            // incorrectAnswers.forEach((disease) => {
+            //     incorrectDiseases += disease + ", ";
+            // });
+            document.getElementById('incorrectAnswers').innerHTML = incorrectAnswers;
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+            // Call the second step
+            const stepTwoResponse = await fetch("/step_two", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            });
+
+            if (stepTwoResponse.ok) {
+                console.log('Successfully called /step_two');
+                const stepTwoResult = await stepTwoResponse.json();
+                symptoms = stepTwoResult.list_symptoms; // This should be updated with your actual data retrieval method
+
+                changePage(1); // Display the first page of symptoms
+
+                // Call the second step
+                const stepThreeResponse = await fetch("/generate_explanation", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                });
+
+                if (stepThreeResponse.ok) {
+                    console.log('Successfully called /generate_explanation');
+                    const stepThreeResult = await stepThreeResponse.json();
+                    // Finally, request and display the explanations
+                    const explanations = stepThreeResult.explanations;
+
+                    // Check if explanations is not undefined
+                    if (explanations) {
+                        // Display explanations in the 'results' div
+                        // Hide the loading spinner
+                        document.getElementById('loadingSpinner').style.display = 'none';
+                        const resultsDiv = document.getElementById("results");
+                        resultsDiv.innerHTML = `<p>${explanations}</p>`;
+                    } else {
+                        console.log("Explanations are undefined.");
+                    }
+                } else {
+                    console.log("API call for step three failed:", stepThreeResponse.status);
+                }
+            } else {
+                console.log("API call for step two failed:", stepTwoResponse.status);
+            }
+        } else {
+            console.log("API call for step one failed:", stepOneResponse.status);
+        }
+    }
+</script>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   AI Clinical Reasoning Helper
+  </title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+  /* General Styles */
+body {
+    background-color: #F9F9F9;
+    color: #333333;
+    font-family: 'Arial', sans-serif; /* You can change this to a font of your choice */
+}
+
+/* Headers, Primary Elements */
+h1, h2, h3, .primary {
+    color: #5599FF;
+}
+
+/* Secondary Elements */
+.secondary {
+    color: #7BC8A4;
+}
+
+/* Accent Elements */
+.accent {
+    color: #FFB447;
+}
+
+/* Buttons, Links */
+a, button {
+    background-color: #5599FF;
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+a:hover, button:hover {
+    background-color: #7BC8A4;
+}
+
+/* Named Entity Colors */
+.SignOrSymptom {
+    background-color: #FF6B6B;
+}
+
+.Finding {
+    background-color: #1E90FF;
+}
+
+.TemporalConcept {
+    background-color: #98FB98;
+}
+
+.Location {
+    background-color: #FFD700;
+}
+
+.PopulationGroup {
+    background-color: #FFA07A;
+}
+
+.AgeGroup {
+    background-color: #DDA0DD;
+}
+
+.NoSymptomOccurrence {
+    background-color: #B0E0E6;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Box Styling */
+.box {
+    background-color: #FFFFFF;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+}
+</style>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <!-- jQuery first -->
+  <script>
+   function bootstrapAutocomplete(inp) {
+    let currentFocus;
+    inp.addEventListener("input", function() {
+        let dropdown, item, val = this.value;
+        closeAllLists();
+        if (!val) { return false; }
+        currentFocus = -1;
+        dropdown = document.createElement("DIV");
+        dropdown.setAttribute("id", this.id + "autocomplete-list");
+        dropdown.setAttribute("class", "list-group autocomplete-items");  // Bootstrap class
+        this.parentNode.appendChild(dropdown);
+        
+        if (val.length > 3) {
+            const url = "https://hpo.jax.org/api/hpo/search";
+            const params = {q: val, category: "diseases", max: 4};
+            
+            $.get(url, params)
+                .done(response => {
+                    response["diseases"].forEach(function(disease){
+                        item = document.createElement("DIV");
+                        item.innerHTML = `<strong class='list-group-item'>${disease["dbName"]} | ${disease["diseaseId"]}</strong>`;  // Bootstrap class
+                        item.innerHTML += `<input type='hidden' value='${disease["dbName"]}'>`;
+                        item.innerHTML += `<input type='hidden' value='${disease["diseaseId"]}'>`;
+                        
+                        item.addEventListener("click", function() {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            inp.setAttribute("data-disease-id", this.getElementsByTagName("input")[1].value);  // Save the diseaseId as a data attribute
+                            closeAllLists();
+                        });
+                        dropdown.appendChild(item);
+                    });
+                })
+                .fail(error => {
+                    console.log(error);
+                });
+        }
+    });
+        /*execute a function presses a key on the keyboard:*/
+        inp.addEventListener("keydown", function(e) {
+        let x = document.getElementById(this.id + "autocomplete-list");
+        if (x) x = x.getElementsByTagName("div");
+        if (e.keyCode === 40) {
+            /*If the arrow DOWN key is pressed,
+            increase the currentFocus variable:*/
+            currentFocus++;
+            /*and and make the current item more visible:*/
+            addActive(x);
+        } else if (e.keyCode === 38) { //up
+            /*If the arrow UP key is pressed,
+            decrease the currentFocus variable:*/
+            currentFocus--;
+            /*and and make the current item more visible:*/
+            addActive(x);
+        } else if (e.keyCode === 13) {
+            /*If the ENTER key is pressed, prevent the form from being submitted,*/
+            e.preventDefault();
+            if (currentFocus > -1) {
+                /*and simulate a click on the "active" item:*/
+                if (x) x[currentFocus].click();
+            }
+        }
+    });
+    function addActive(x) {
+        /*a function to classify an item as "active":*/
+        if (!x) return false;
+        /*start by removing the "active" class on all items:*/
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        /*add class "autocomplete-active":*/
+        x[currentFocus].classList.add("autocomplete-active");
+    }
+    function removeActive(x) {
+        /*a function to remove the "active" class from all autocomplete items:*/
+        for (var i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+        }
+    }
+    function closeAllLists(elmnt) {
+        /*close all autocomplete lists in the document,
+        except the one passed as an argument:*/
+        var x = document.getElementsByClassName("autocomplete-items");
+        for (var i = 0; i < x.length; i++) {
+            if (elmnt !== x[i] && elmnt !== inp) {
+                x[i].parentNode.removeChild(x[i]);
+            }
+        }
+    }
+    /*execute a function when someone clicks in the document:*/
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
+}
+document.addEventListener("DOMContentLoaded", function() {
+            bootstrapAutocomplete(document.getElementById("correctDisease"));
+            bootstrapAutocomplete(document.getElementById("disease2"));
+            bootstrapAutocomplete(document.getElementById("disease3"));
+            bootstrapAutocomplete(document.getElementById("disease4"));
+            bootstrapAutocomplete(document.getElementById("disease5"));
+        });
+  </script>
+ </head>
+ <body>
+  <div class="container mt-5">
+   <h1>
+    Clinical Justifier Web Demo
+   </h1>
+
+    <p>
+        <!-- Welcome to the Clinical Justifier demo! <br> -->
+
+        This interactive web demo allows you to enter details of a clinical case, along with a medical expert's explanation for the diagnosis.<br>
+        It will then process the case and explanation through an AI pipeline to:<br>
+        <ol type="1">    
+            <li>Identify potential symptom reasons from the case text using medical named entity recognition</li><br>
+            <li>Map the extracted symptoms to a standardized ontology</li><br>
+            <li>Evaluate all possible reasons using a prevalence function to score relevance</li><br>
+            <li>Align the expert's explanation reasons with the scored reasons</li><br>
+            <li>Generate an assessment comparing the expert's reasons to the expected relevance based on prevalence scores</li><br>
+        </ol>
+        The goal is to showcase our AI methodology for systematically assessing the reasoning in medical explanations. You'll be able to enter your own case data and view how our techniques analyze the expert rationale.<br>
+        <br>
+        This provides a transparent method for evaluating explanation quality, highlighting strong reasons and suggesting improvements. The automated assessment aims to augment medical experts' diagnostic explanations.<br>
+        <br>
+        We hope this demo gives you an interactive look at our work on explainable AI! Please enter a clinical case and explanation in the fields below to see the analysis.<br>
+    </p>
+   <!-- Text Input Area for Clinical Case -->
+   <div class="form-group">
+    <button id="autofillButton" class="btn btn-primary">Autofill Example</button><br>
+    <label for="clinicalCase">
+     Clinical Case:
+    </label>
+    <textarea class="form-control" id="clinicalCase" rows="5"></textarea>
+   </div>
+   <!-- Text Input Areas for Possible Diseases -->
+   <div autocomplete="off" class="form-group">
+    <label for="diseases">
+     Correct Disease:
+    </label>
+    <div class="autocomplete">
+     <input class="form-control mb-2" id="correctDisease" placeholder="Correct Disease" type="text"/>
+    </div>
+    Other Diseases:
+    <div class="autocomplete">
+     <input class="form-control mb-2" id="disease2" placeholder="Disease 2" type="text"/>
+    </div>
+    <div class="autocomplete">
+     <input class="form-control mb-2" id="disease3" placeholder="Disease 3" type="text"/>
+    </div>
+    <div class="autocomplete">
+     <input class="form-control mb-2" id="disease4" placeholder="Disease 4" type="text"/>
+    </div>
+    <div class="autocomplete">
+     <input class="form-control mb-2" id="disease5" placeholder="Disease 5" type="text"/>
+    </div>
+   </div>
+   <!-- Submit Button -->
+   <button class="btn btn-primary" type="submit">
+    Submit
+   </button>
+   <!-- Area to Display Results -->
+   <div class="mt-4" id="results">
+    <!-- Named entities and explanations will be displayed here -->
+   </div>
+  </div>
+ </body>
+</html>
+<script>
+ // Function to initiate the AI pipeline when the "Submit" button is clicked
+    async function initiatePipeline() {
+        // Get values from the frontend
+
+        let diseases = [];
+        let diseaseIds = [];
+        ["correctDisease", "disease2", "disease3", "disease4", "disease5"].forEach(id => {
+            let inputElem = document.getElementById(id);
+            diseases.push(inputElem.value);
+            diseaseIds.push(inputElem.getAttribute("data-disease-id"));
+        });
+        const clinicalCase = document.getElementById("clinicalCase").value;
+        // const diseases = [
+        //     document.getElementById("correctDisease").value,
+        //     document.getElementById("disease2").value,
+        //     document.getElementById("disease3").value,
+        //     document.getElementById("disease4").value,
+        //     document.getElementById("disease5").value
+        // ];
+
+        let correctDisease = document.getElementsByName("correctDisease");
+        
+        // Create the JSON payload
+        const payload = {
+            "clinical_case": clinicalCase,
+            "diseases": diseases,
+            "correct_disease": correctDisease,
+            "disease_ids": diseaseIds
+        };
+
+        // Make the API call to initiate the pipeline
+        const response = await fetch("/start_pipeline", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+    
+        if (response.ok) {
+            console.log('Successfully called /start_pipeline');
+            const result = await response.json();
+            window.location.href = 'results.html';  // Redirect to the loading page
+        } else {
+            console.log("Initial API call failed:", response.status);
+        }
+    }
+    // Attach the initiatePipeline function to the "Submit" button
+    document.querySelector("button[type='submit']").addEventListener("click", initiatePipeline);
+
+
+    document.getElementById('autofillButton').addEventListener('click', function() {
+        // Select the form fields and fill them with example data
+        document.getElementById('clinicalCase').value = "A previously healthy 34-year-old woman is brought to the physician because of fever and headache for 1 week. She has not been exposed to any disease. She takes no medications. Her temperature is 39.3°C (102.8°F), pulse is 104/min, respirations are 24/min, and blood pressure is 135/88 mm Hg. She is confused and oriented only to person. Examination shows jaundice of the skin and conjunctivae. There are a few scattered petechiae over the trunk and back. There is no lymphadenopathy. Physical and neurologic examinations show no other abnormalities. Test of the stool for occult blood is positive. \n Laboratory studies show:\n Hematocrit 32% with fragmented and nucleated erythrocytes \n Leukocyte count 12,500/mm3 \n Platelet count 20,000/mm3 \n Prothrombin time 10 sec \n Partial thromboplastin time 30 sec \n Fibrin split products negative \n Serum Urea nitrogen 35 mg/dL \n Creatinine 3.0 mg/dL \n Bilirubin Total 3.0 mg/dL \n Direct 0.5 mg/dL \n Lactate dehydrogenase 1000 U/L \n Blood and urine cultures are negative. A CT scan of the head shows no abnormalities.";
+        document.getElementById('correctDisease').value = "Thrombotic thrombocytopenic purpura";
+        document.getElementById('correctDisease').setAttribute("data-disease-id", "ORPHA:54057");
+        document.getElementById('disease2').value = "Meningococcal meningitis";
+        document.getElementById('disease2').setAttribute("data-disease-id", "ORPHA:33475");
+        document.getElementById('disease3').value = "Sarcoidosis";
+        document.getElementById('disease3').setAttribute("data-disease-id", "ORPHA:797");
+        document.getElementById('disease4').value = "Systemic lupus erythematosus";
+        document.getElementById('disease4').setAttribute("data-disease-id", "ORPHA:536");
+        // Add any other form fields that need to be filled
+});
+</script>
