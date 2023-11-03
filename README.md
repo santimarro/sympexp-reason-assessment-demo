@@ -96,7 +96,13 @@ deactivate
 
 ## Interface
 
-To add images
+<img width="1224" alt="Screenshot 2023-11-03 at 17 46 16" src="https://github.com/santimarro/sympexp-reason-assessment-demo/assets/13843211/acb96af2-bee0-4f5c-9271-7928fe6a82d7">
+
+<img width="1199" alt="Screenshot 2023-11-03 at 17 46 29" src="https://github.com/santimarro/sympexp-reason-assessment-demo/assets/13843211/ae47bbc7-1122-4e39-ba73-7d9f49cc4228">
+
+<img width="1201" alt="Screenshot 2023-11-03 at 17 46 40" src="https://github.com/santimarro/sympexp-reason-assessment-demo/assets/13843211/f75e65ab-aaf4-4c8c-9296-505e97dc0d9a">
+
+<img width="1200" alt="Screenshot 2023-11-03 at 17 46 56" src="https://github.com/santimarro/sympexp-reason-assessment-demo/assets/13843211/e22ee66b-db3e-473c-9b23-3ea232779aab">
 
 ## License
 
