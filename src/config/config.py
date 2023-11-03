@@ -31,7 +31,9 @@ class Configuration:
         self.auth_token = "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"
         # Directories
         self.BASE_DIR = self.BASE_DIR = os.getcwd()
-        self.EXPERIMENTS_DIR = os.path.join(self.BASE_DIR, "outputs_Truco_2_fix")
+        self.EXPERIMENTS_DIR = os.path.join(
+            self.BASE_DIR, "outputs_Truco_2_fix"
+        )
         self.DATASET_DIR = os.path.join(self.BASE_DIR, "casimedicos.csv")
         self.SYMPTOMS_FILE_DIR = os.path.join(self.BASE_DIR, "symptoms.csv")
         self.SETS_FILE_DIR = os.path.join(

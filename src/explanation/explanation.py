@@ -8,6 +8,7 @@ You will receive the set of diseases and the set of sentences containing relevan
 Avoid any other response more than the explanation itself. If you are not sure about the explanation, you can say that you are not sure.
 """
 
+
 class ExplanationModule:
     def __init__(self):
         self.config = Configuration()
@@ -62,7 +63,7 @@ class ExplanationModule:
                         explanations.append(
                             f"You should consider invoking the reason {symptom.name} since it is a symptom unique to the correct diagnosis and it is present in the clinical case."
                         )
-                    
+
             elif (
                 not symptom.correct
                 and symptom.high_occurrence_rate
@@ -90,12 +91,13 @@ class ExplanationModule:
 
         prompt = f"Diseases: {diseases} \n correct_disease: {correct_disease}, \n information: {information} \n Explain why the symptoms suggest the disease is {correct_disease} rather than the others."
         response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": role_prompt},
-            {"role": "user", "content": prompt},
-        ])
-        
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": role_prompt},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
         # explanation = response.choices[0].text.strip()
-        explanation = response['choices'][0]['message']['content'].strip()
+        explanation = response["choices"][0]["message"]["content"].strip()
         return explanation

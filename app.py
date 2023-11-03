@@ -73,8 +73,6 @@ def start_pipeline():
     # explanation = request.json.get("explanation")
     diseases = request.json.get("diseases")
     disease_ids = request.json.get("disease_ids")
-    # print(diseases)
-    # print(disease_ids)
 
     for i in range(len(diseases)):
         map_disease_code[diseases[i]] = disease_ids[i]
@@ -133,11 +131,8 @@ def start_pipeline():
 def step_one():
     # Recovering inputs from session
     print("Running NER")
-    # print(list(info.keys()))
     clinical_case = info["clinical_case"]
-    # print(clinical_case)
     named_entities = ner_module.get_sentences_nes_list(clinical_case)
-    # print(named_entities)
     # Map the labels in named_entities to the labels in the frontend
     modified_named_entities = []
     for entity in named_entities:
@@ -148,10 +143,10 @@ def step_one():
     # ('Sign_or_Symptom', 'slight malar hypertrichosis', 358, 385)
     # Filter named entities that are only Signs or Symptoms
     found_symptoms = [
-        x[1] for x in named_entities if x[0] == "Sign_or_Symptom"
+        x[1] for x in named_entities if x[0] == "Sign or Symptom"
     ]
     no_occurrence_symptoms = [
-        x[1] for x in named_entities if x[0] == "No_Symptom_Occurence"
+        x[1] for x in named_entities if x[0] == "No Symptom Occurence"
     ]
 
     info["present_symptoms"] = found_symptoms
@@ -160,15 +155,8 @@ def step_one():
     incorrect_disease_names = ", ".join(
         list(info["incorrect_diseases"].keys())
     )
-    print(incorrect_disease_names)
     correct_disease_name = info["correct_disease"]
 
-    # Example of named_entities formated as Spacy NER
-    # data = {
-    # "text": "But Google is starting from behind.",
-    # "ents": [{"start": 4, "end": 10, "label": "ORG"}],
-    # "title": None
-    # }
     # Create a dictionary with the named entities in the Spacy NER format
     ent_input = {"text": clinical_case, "ents": [], "title": None}
     for entity in named_entities:
@@ -236,7 +224,6 @@ def generate_explanation():
     explanations = explanation_module.generate_simpler_explanation(
         selected_symptoms
     )
-    print(explanations)
 
     # replace disease ids with disease names in explanations
     for i, expl in enumerate(explanations):
@@ -246,13 +233,10 @@ def generate_explanation():
                     disease_id, map_code_disease[disease_id]
                 )
 
-    # print(explanations)
     # gpt_explanation = explanations
     gpt_explanation = explanation_module.generate_gpt_explanation(
         info["diseases"], info["correct_disease"], explanations
     )
-    # return jsonify({"explanations": " .".join(explanations)})
-    # print(gpt_explanation)
     return jsonify({"explanations": gpt_explanation})
 
 

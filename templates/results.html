@@ -237,6 +237,8 @@ a:hover, button:hover {
                 console.log('Successfully called /step_two');
                 const stepTwoResult = await stepTwoResponse.json();
                 symptoms = stepTwoResult.list_symptoms; // This should be updated with your actual data retrieval method
+                // Log symptoms
+                console.log(symptoms);
 
                 changePage(1); // Display the first page of symptoms
 

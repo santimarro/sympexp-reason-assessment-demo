@@ -80,7 +80,6 @@ class PrevalenceModule:
                     formal_symptom.present_in_case = True
                     break
 
-
     def find_symptom(self, formal_symptom, case, present_symptoms):
         # Check if its present
         # Use matching module from ICAART to match the symptoms.
@@ -88,16 +87,12 @@ class PrevalenceModule:
         bests = match_with_context(
             case, self.embedding_model, self.filtered_hpo_terms
         )
-        # print()
-        # print(bests)
-        # print(formal_symptom)
         for result in bests:
             if formal_symptom.name == result[0]:
                 formal_symptom.present_in_case = True  # False
                 break
 
     def create_formal_symptoms(self, diseases_info, correct=True):
-
         list_formal_symptoms = []
         for disease_name, symptoms_list in diseases_info.items():
             for symptom in symptoms_list:
@@ -121,8 +116,10 @@ class PrevalenceModule:
                 list_formal_symptoms.append(formal_symptom)
 
         return list_formal_symptoms
-    
-    def check_unique_to_correct_symptom(self, correct_symptoms, incorrect_symptoms):
+
+    def check_unique_to_correct_symptom(
+        self, correct_symptoms, incorrect_symptoms
+    ):
         unique = True
         for correct_symptom in correct_symptoms:
             for incorrect_symptom in incorrect_symptoms:
@@ -132,7 +129,6 @@ class PrevalenceModule:
             correct_symptom.unique_to_correct = unique
 
     def calculate_prevalence(self, data):
-
         # key_causes = data['causes']
         case = data["case"]
 
@@ -160,9 +156,10 @@ class PrevalenceModule:
             incorrect_symptoms, correct=False
         )
 
-        self.check_unique_to_correct_symptom(correct_formal_symptoms, incorrect_formal_symptoms)
+        self.check_unique_to_correct_symptom(
+            correct_formal_symptoms, incorrect_formal_symptoms
+        )
         list_formal_symptoms = []
-
 
         self.find_symptoms(correct_formal_symptoms, case, present_symptoms)
         self.find_symptoms(incorrect_formal_symptoms, case, present_symptoms)

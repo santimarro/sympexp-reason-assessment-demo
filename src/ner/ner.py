@@ -14,6 +14,7 @@ from tqdm import tqdm
 from numpy import dot
 from numpy.linalg import norm
 from thefuzz import fuzz
+
 # import nltk
 
 import ast
@@ -87,18 +88,18 @@ class NERModule:
     #         return nes["value"].tolist()
     #     else:
     #         return []
-        # return nes
+    # return nes
 
     # def split_sentences(self, clinical_case):
     #     # sentences = data[column].split(". ")
     #     sentences = nltk.sent_tokenize(clinical_case)
     #     return sentences
-    
+
     # def compute_jaccard(self, case_sentence, explanation_sentence):
     #     case_sentence = set(case_sentence.split())
     #     explanation_sentence = set(explanation_sentence.split())
     #     return float(len(case_sentence.intersection(explanation_sentence)) / len(case_sentence.union(explanation_sentence)))
-    
+
     # def compute_fuzzy_token_set_ratio(self, case_sentence, explanation_sentence):
     #     return fuzz.token_set_ratio(case_sentence, explanation_sentence)
 
@@ -112,7 +113,7 @@ class NERModule:
                 pretok_sent += " " + tok
         pretok_sent = pretok_sent[1:]
         return pretok_sent
-    
+
     def get_sentences_nes_list(self, clinical_case):
         named_entities = []
         full_text_nes = self.ner_pipeline(clinical_case)
@@ -126,7 +127,14 @@ class NERModule:
                     # Append the previous entity to the current sentence
                     if len(current_text.strip()) > 1:
                         clean_text = self.detokenize_bert(current_text.strip())
-                        named_entities.append((current_entity, clean_text, current_start, current_end))
+                        named_entities.append(
+                            (
+                                current_entity,
+                                clean_text,
+                                current_start,
+                                current_end,
+                            )
+                        )
 
                 current_start = item["start"]
                 current_entity = item["entity"][2:]
@@ -142,7 +150,9 @@ class NERModule:
         if current_entity is not None:
             if len(current_text.strip()) > 1:
                 clean_text = self.detokenize_bert(current_text.strip())
-                named_entities.append((current_entity, clean_text, current_start, current_end))
+                named_entities.append(
+                    (current_entity, clean_text, current_start, current_end)
+                )
 
         return named_entities
 
@@ -154,7 +164,7 @@ class NERModule:
     #             # If the entity_list is empty, append the original sentence
     #             #sentences_nes.append(sentences[full_text_nes.index(entity_list)])
     #             #continue
-            
+
     #         current_sentence_nes = ""
     #         current_entity = None
     #         current_text = ""
@@ -215,7 +225,7 @@ class NERModule:
     #         for embedding in case_embeddings
     #     ]
     #     return cosine_similarities
-    
+
     # def match_sentences_baseline(self, data, metric="jaccard"):
     #     # Uses jaccard distance to match sentences
     #     match_tuples = []
@@ -248,7 +258,7 @@ class NERModule:
     #     for index, row in tqdm(data.iterrows()):
 
     #         if already_generated:
-    #             # get row by case_id 
+    #             # get row by case_id
     #             saved_row = symptoms_df.loc[symptoms_df['case_id'] == row['line_id']]
     #             answer_sentence_nes = saved_row['answer_nes'].tolist()[0]
     #             case_sentences_nes = saved_row['case_nes'].tolist()[0]
@@ -341,7 +351,7 @@ class NERModule:
     #     for index, row in tqdm(data.iterrows()):
 
     #         if already_generated:
-    #             # get row by case_id 
+    #             # get row by case_id
     #             saved_row = symptoms_df.loc[symptoms_df['case_id'] == row['line_id']]
     #             answer_sentence_nes = saved_row['answer_nes'].tolist()[0]
     #             case_sentences_nes = saved_row['case_nes'].tolist()[0]
@@ -370,7 +380,7 @@ class NERModule:
     #                 "full_answer": row["full_answer"]
     #             }
     #             symptoms_df = symptoms_df.append(new_symptoms_row, ignore_index=True)
-        
+
     #         answer_embeddings = self.embed_sentences(answer_sentence_nes)
     #         case_embeddings = self.embed_sentences(case_sentences_nes)
 
@@ -385,7 +395,7 @@ class NERModule:
     #                 if answer_sentence_nes[i] == []:
     #                         continue
     #                 if cosine_distance[sentence_index] >= self.threshold:
-                        
+
     #                     match_tuples.append(
     #                         (
     #                             index,
@@ -437,10 +447,16 @@ class NERModule:
             if os.path.isdir(os.path.join(base_dir, author))
             for model_name in os.listdir(os.path.join(base_dir, author))
             if os.path.isdir(os.path.join(base_dir, author, model_name))
-            for threshold in os.listdir(os.path.join(base_dir, author, model_name))
-            if os.path.isdir(os.path.join(base_dir, author, model_name, threshold))
+            for threshold in os.listdir(
+                os.path.join(base_dir, author, model_name)
+            )
+            if os.path.isdir(
+                os.path.join(base_dir, author, model_name, threshold)
+            )
             and os.path.isfile(
-                os.path.join(base_dir, author, model_name, threshold, "tuples.txt")
+                os.path.join(
+                    base_dir, author, model_name, threshold, "tuples.txt"
+                )
             )
         ]
 

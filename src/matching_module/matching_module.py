@@ -4,9 +4,6 @@ from flair.data import Sentence
 from scipy.spatial import distance_matrix
 
 
-# ------------------------------------------------------------------------------
-
-
 def main(hpo_terms, input, embedding_full_eval):
     results = []
     method_full_eval = "sentences"
@@ -24,7 +21,6 @@ def main(hpo_terms, input, embedding_full_eval):
             "predicted_matched_symptoms": bests,
         }
         results.append(tmp)
-        # print("=====")
     return results
 
 
