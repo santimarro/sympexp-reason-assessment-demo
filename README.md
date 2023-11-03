@@ -28,7 +28,7 @@ This AI analysis system is designed to assist medical students in understanding 
 To get the Clinical Exam AI Analysis System running on your local machine, follow the steps outlined below:
 
 ### Prerequisites
-- Python 3.6 or higher
+- Python 3.8 or higher
 - pip (Python package installer)
 - Virtual environment tool (optional, but recommended)
 
