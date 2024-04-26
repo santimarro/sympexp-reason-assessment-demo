@@ -1,6 +1,8 @@
-from src.config.config import Configuration
-import openai
 import os
+
+from openai import OpenAI
+
+from src.config.config import Configuration
 
 role_prompt = """
 You are an expert in medicine with a specific focus on explaining a diagnosis. You know how to analyze a set of sentences to generate an explanation for a medical condition.You will generate an accurate yet constrained explanation based on the information provided.
@@ -87,17 +89,21 @@ class ExplanationModule:
         return explanations
 
     def generate_gpt_explanation(self, diseases, correct_disease, information):
-        openai.api_key = os.environ["OPENAI_API_KEY"]
+        client = OpenAI(
+            # This is the default and can be omitted
+            api_key=os.environ.get("OPENAI_API_KEY"),
+        )
 
         prompt = f"Diseases: {diseases} \n correct_disease: {correct_disease}, \n information: {information} \n Explain why the symptoms suggest the disease is {correct_disease} rather than the others."
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+
+        response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": role_prompt},
                 {"role": "user", "content": prompt},
             ],
+            model="gpt-3.5-turbo",
         )
 
         # explanation = response.choices[0].text.strip()
-        explanation = response["choices"][0]["message"]["content"].strip()
+        explanation = response.choices[0].message.content.strip()
         return explanation

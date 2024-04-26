@@ -26,7 +26,6 @@ class NERModule:
         self.ner_pipeline = pipeline(
             "token-classification",
             model="smarro/medical_ner",
-            use_auth_token=self.config.auth_token,
             device=self.device,
         )
 

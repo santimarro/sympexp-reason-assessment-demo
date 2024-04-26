@@ -27,8 +27,6 @@ class Configuration:
         self.per_device_train_batch_size = 8
         self.per_device_eval_batch_size = 8
         self.auth_token = "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"
-
-        self.auth_token = "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"
         # Directories
         self.BASE_DIR = self.BASE_DIR = os.getcwd()
         self.EXPERIMENTS_DIR = os.path.join(self.BASE_DIR, "outputs_Truco_2_fix")
