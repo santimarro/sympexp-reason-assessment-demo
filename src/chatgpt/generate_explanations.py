@@ -9,7 +9,6 @@ DO NOT conclude anything outside of the information provided. DO NOT suggest any
 
 
 def generate_gpt_explanation(diseases, correct_disease, information):
-    openai.api_key = "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"
 
     prompt = f"Diseases: {diseases} \n correct_disease: {correct_disease}, \n information: {information} \n Explain why the symptoms suggest the disease is {correct_disease} rather than the others."
     response = openai.ChatCompletion.create(

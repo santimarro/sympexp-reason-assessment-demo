@@ -1,6 +1,6 @@
-import requests
 import pandas as pd
-from fuzzywuzzy import process
+import requests
+from rapidfuzz import process
 
 from src.config.config import Configuration
 
@@ -30,12 +30,9 @@ class APIModule:
         closest_match = process.extractOne(disease_name, disease_names)
         if closest_match is not None:
             closest_name, _ = closest_match
-            closest_names = process.extract(
-                disease_name, disease_names, limit=2
-            )
+            closest_names = process.extract(disease_name, disease_names, limit=2)
 
             find_orpha = False
-            max_score = 0
             first_name, first_score = closest_names[0]
 
             if len(closest_names) == 2 and first_name == closest_names[1][0]:
@@ -68,17 +65,13 @@ class APIModule:
         if response.status_code == 200:
             return [entry["phenotype"] for entry in response.json()]
         else:
-            print(
-                f"Error fetching symptoms for {disease_id}: {response.status_code}"
-            )
+            print(f"Error fetching symptoms for {disease_id}: {response.status_code}")
             return []
 
     def get_disease_data(self, disease_name):
         disease_data = []
         search_results = self.search_disease(disease_name)
-        closest_disease_id = self.select_closest_disease(
-            disease_name, search_results
-        )
+        closest_disease_id = self.select_closest_disease(disease_name, search_results)
         if closest_disease_id is not None:
             disease_info = self.get_disease_info(closest_disease_id)
             if disease_info is not None:
@@ -101,9 +94,9 @@ class APIModule:
 
     def make_api_calls(self):
         symptoms_df = pd.read_csv(self.config.SYMPTOMS_FILE_DIR)
-        symptoms_df = symptoms_df[
-            symptoms_df["diagnosis_question"] == 1
-        ].reset_index(drop=True)
+        symptoms_df = symptoms_df[symptoms_df["diagnosis_question"] == 1].reset_index(
+            drop=True
+        )
 
         correct_disease = symptoms_df.apply(
             lambda row: row[f'option_{row["correct_answer"]}'], axis=1

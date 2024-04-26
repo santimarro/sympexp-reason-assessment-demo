@@ -1,4 +1,3 @@
-import pickle
 import numpy as np
 from flair.data import Sentence
 from scipy.spatial import distance_matrix
@@ -8,11 +7,6 @@ def main(hpo_terms, input, embedding_full_eval):
     results = []
     method_full_eval = "sentences"
 
-    # 4 --- Here we run the embeddings
-    # if method_full_eval == "words":
-    #    bests = match_words_with_context(gold_labels_data[gold_labels.iloc[0].disease_name],
-    #                                     embedding_full_eval, threshold_
-    #                                     full_eval)
     if method_full_eval == "sentences":
         bests = match_with_context(input, embedding_full_eval, hpo_terms)
 
@@ -54,10 +48,7 @@ def match_with_context(case, embeddings, hpo_terms):
 
             hpo_term_names = list(hpo_terms.values())
             hpo_sentence_embeddings = np.array(
-                [
-                    term["sentence"].embedding.cpu().numpy()
-                    for term in hpo_term_names
-                ]
+                [term["sentence"].embedding.cpu().numpy() for term in hpo_term_names]
             )
 
             # Note: This assumes combine_embeddings can handle numpy arrays.
@@ -66,23 +57,17 @@ def match_with_context(case, embeddings, hpo_terms):
                 hpo_sentence_embeddings,
             )
 
-            detected_context_embedding = np.array(
-                [detected_context_embedding.numpy()]
-            )
+            detected_context_embedding = np.array([detected_context_embedding.numpy()])
 
             # Calculate the distance matrix.
-            dist = distance_matrix(
-                detected_context_embedding, combined_embeddings
-            )
+            dist = distance_matrix(detected_context_embedding, combined_embeddings)
             best = np.argsort(dist[0])[:5]
             bests = []
             list_hpo_context_embeddings_names = []
             for hpo_term in hpo_terms:
                 list_hpo_context_embeddings_names.append(hpo_terms[hpo_term])
             for index in best:
-                bests.append(
-                    [dist[0][index], list_hpo_context_embeddings_names[index]]
-                )
+                bests.append([dist[0][index], list_hpo_context_embeddings_names[index]])
             five_bests = []
             for j, b in enumerate(bests):
                 # print("For", detectedSymptom, "Bests", b[1]["name"])

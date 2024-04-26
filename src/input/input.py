@@ -1,5 +1,6 @@
-import pandas as pd
 import re
+
+import pandas as pd
 
 from src.config.config import Configuration
 
@@ -17,9 +18,7 @@ class InputModule:
             answer_column = "option_" + match.group(2)
             if answer_column in row.index:
                 answer_value = row[answer_column]
-                answer_value = answer_value.rstrip(
-                    "."
-                )  # Remove trailing '.' character
+                answer_value = answer_value.rstrip(".")  # Remove trailing '.' character
                 return match.group().replace(match.group(2), answer_value)
             return match.group()
 
@@ -27,9 +26,7 @@ class InputModule:
             option_column = "option_" + match.group(1)
             if option_column in row.index:
                 option_value = row[option_column]
-                return option_value.rstrip(
-                    "."
-                )  # Remove trailing '.' character
+                return option_value.rstrip(".")  # Remove trailing '.' character
             return match.group()
 
         replaced_text = re.sub(answer_pattern, replace_answer, text)

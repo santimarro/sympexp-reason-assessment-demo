@@ -1,13 +1,12 @@
-from flask import Flask, jsonify, request, session, url_for, render_template
-from src.prevalence.prevalence import PrevalenceModule
-from src.ner.ner import NERModule
-from src.api.api_calls import APIModule
-from tqdm import tqdm
-from src.explanation.explanation import ExplanationModule
-import spacy
-from spacy import displacy
 from bs4 import BeautifulSoup
+from flask import Flask, jsonify, render_template, request, url_for
+from spacy import displacy
+from tqdm import tqdm
 
+from src.api.api_calls import APIModule
+from src.explanation.explanation import ExplanationModule
+from src.ner.ner import NERModule
+from src.prevalence.prevalence import PrevalenceModule
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "topSecret"
@@ -78,7 +77,7 @@ def start_pipeline():
         map_disease_code[diseases[i]] = disease_ids[i]
 
     # do the inverse
-    map_code_disease = {v: k for k, v in map_disease_code.items()}
+    # map_code_disease = {v: k for k, v in map_disease_code.items()}
 
     correct_disease = diseases[0]
 
@@ -95,20 +94,12 @@ def start_pipeline():
         disease_symptoms = get_symptoms(disease_info)
         symptoms_info[disease] = disease_symptoms
         if disease == correct_disease:
-            correct_info = disease_info
             correct_symptoms = disease_symptoms
         else:
             incorrect_symptoms.extend(disease_symptoms)
             incorrect_dict[disease] = disease_symptoms
 
     print("Finished API calls to HPO")
-
-    # session['diseases'] = diseases
-    # session['correct_disease'] = correct_disease
-    # session['clinical_case'] = clinical_case
-    # session['correct_symptoms'] = correct_symptoms
-    # session['incorrect_symptoms'] = incorrect_symptoms
-    # session['incorrect_diseases'] = incorrect_dict
 
     info["diseases"] = diseases
     info["correct_disease"] = correct_disease
@@ -142,9 +133,7 @@ def step_one():
     named_entities = modified_named_entities
     # ('Sign_or_Symptom', 'slight malar hypertrichosis', 358, 385)
     # Filter named entities that are only Signs or Symptoms
-    found_symptoms = [
-        x[1] for x in named_entities if x[0] == "Sign or Symptom"
-    ]
+    found_symptoms = [x[1] for x in named_entities if x[0] == "Sign or Symptom"]
     no_occurrence_symptoms = [
         x[1] for x in named_entities if x[0] == "No Symptom Occurence"
     ]
@@ -152,9 +141,7 @@ def step_one():
     info["present_symptoms"] = found_symptoms
     info["no_occurrence_symptoms"] = no_occurrence_symptoms
 
-    incorrect_disease_names = ", ".join(
-        list(info["incorrect_diseases"].keys())
-    )
+    incorrect_disease_names = ", ".join(list(info["incorrect_diseases"].keys()))
     correct_disease_name = info["correct_disease"]
 
     # Create a dictionary with the named entities in the Spacy NER format
@@ -221,17 +208,13 @@ def generate_explanation():
     formal_symptoms = info["formal_symptoms"]
     selected_symptoms = formal_symptoms[:5]
 
-    explanations = explanation_module.generate_simpler_explanation(
-        selected_symptoms
-    )
+    explanations = explanation_module.generate_simpler_explanation(selected_symptoms)
 
     # replace disease ids with disease names in explanations
     for i, expl in enumerate(explanations):
         for disease_id in map_code_disease.keys():
             if disease_id in expl:
-                explanations[i] = expl.replace(
-                    disease_id, map_code_disease[disease_id]
-                )
+                explanations[i] = expl.replace(disease_id, map_code_disease[disease_id])
 
     # gpt_explanation = explanations
     gpt_explanation = explanation_module.generate_gpt_explanation(

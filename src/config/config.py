@@ -31,14 +31,10 @@ class Configuration:
         self.auth_token = "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"
         # Directories
         self.BASE_DIR = self.BASE_DIR = os.getcwd()
-        self.EXPERIMENTS_DIR = os.path.join(
-            self.BASE_DIR, "outputs_Truco_2_fix"
-        )
+        self.EXPERIMENTS_DIR = os.path.join(self.BASE_DIR, "outputs_Truco_2_fix")
         self.DATASET_DIR = os.path.join(self.BASE_DIR, "casimedicos.csv")
         self.SYMPTOMS_FILE_DIR = os.path.join(self.BASE_DIR, "symptoms.csv")
-        self.SETS_FILE_DIR = os.path.join(
-            self.EXPERIMENTS_DIR, "symptoms_sets.csv"
-        )
+        self.SETS_FILE_DIR = os.path.join(self.EXPERIMENTS_DIR, "symptoms_sets.csv")
 
         self.HPO_EMBEDDINGS = os.path.join(
             self.BASE_DIR, "hpo_terms_embeddings_s_pubmedbert_ms_marco.pickle"

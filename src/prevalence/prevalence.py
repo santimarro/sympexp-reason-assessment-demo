@@ -1,8 +1,10 @@
+import pickle
+
+from flair.embeddings import SentenceTransformerDocumentEmbeddings
+from tqdm import tqdm
+
 from src.config.config import Configuration
 from src.matching_module.matching_module import match_with_context
-from flair.embeddings import SentenceTransformerDocumentEmbeddings
-import pickle
-from tqdm import tqdm
 
 
 class Symptom:
@@ -71,9 +73,7 @@ class PrevalenceModule:
         # Check if its present
         # Use matching module from ICAART to match the symptoms.
         case = {"case": case, "detected_symptoms": present_symptoms}
-        bests = match_with_context(
-            case, self.embedding_model, self.filtered_hpo_terms
-        )
+        bests = match_with_context(case, self.embedding_model, self.filtered_hpo_terms)
         for result in bests:
             for formal_symptom in formal_symptoms:
                 if formal_symptom.name == result[0]:
@@ -84,9 +84,7 @@ class PrevalenceModule:
         # Check if its present
         # Use matching module from ICAART to match the symptoms.
         case = {"case": case, "detected_symptoms": present_symptoms}
-        bests = match_with_context(
-            case, self.embedding_model, self.filtered_hpo_terms
-        )
+        bests = match_with_context(case, self.embedding_model, self.filtered_hpo_terms)
         for result in bests:
             if formal_symptom.name == result[0]:
                 formal_symptom.present_in_case = True  # False
@@ -117,14 +115,11 @@ class PrevalenceModule:
 
         return list_formal_symptoms
 
-    def check_unique_to_correct_symptom(
-        self, correct_symptoms, incorrect_symptoms
-    ):
+    def check_unique_to_correct_symptom(self, correct_symptoms, incorrect_symptoms):
         unique = True
         for correct_symptom in correct_symptoms:
             for incorrect_symptom in incorrect_symptoms:
                 if correct_symptom.name == incorrect_symptom.name:
-                    found = False
                     break
             correct_symptom.unique_to_correct = unique
 
@@ -133,7 +128,6 @@ class PrevalenceModule:
         case = data["case"]
 
         correct_symptoms = data["correct_symptoms"]
-        # correct_symptoms = {data["correct_disease"]: data['correct_symptoms']}
         present_symptoms = data["present_symptoms"]
 
         incorrect_symptoms = data["incorrect_symptoms"]
@@ -165,7 +159,6 @@ class PrevalenceModule:
         self.find_symptoms(incorrect_formal_symptoms, case, present_symptoms)
 
         for formal_symptom in tqdm(correct_formal_symptoms):
-            # self.find_symptom(formal_symptom, case, present_symptoms)
             # Check if kp is in the correct list of symptoms
             if formal_symptom.present_in_case:
                 formal_symptom.score += 2
